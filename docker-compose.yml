@@ -1,0 +1,12 @@
+services:
+  php-apache-environment:
+    image: template2:1.0.0
+    container_name: template2
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ./html:/var/www/html/
+      - ./secure:/var/www/secure/
+    ports:
+      - '${APP_PORT}:80'
