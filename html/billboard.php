@@ -1,11 +1,10 @@
 <section id="billboard" class="bg-light py-5">
   <div class="container">
     <div class="row justify-content-center">
-      <h1 class="section-title text-center mt-4" data-aos="fade-up">New Collections</h1>
+      <h1 class="section-title text-center mt-4" data-aos="fade-up"><?= BB_TITLE;?></h1>
       <div class="col-md-6 text-center" data-aos="fade-up" data-aos-delay="300">
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe voluptas ut dolorum consequuntur, adipisci
-          repellat! Eveniet commodi voluptatem voluptate, eum minima, in suscipit explicabo voluptatibus harum,
-          quibusdam ex repellat eaque!</p>
+        <p><?= BB_DESCRIPTION;?></p>
+        <p><?php echo BB_DESCRIPTION;?></p>
       </div>
     </div>
     <div class="row">

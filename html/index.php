@@ -5,13 +5,13 @@
 <?php include ("head.php"); ?>
 
 <body class="homepage">
-
-  <?php include ('icons.php'); ?>
-  <?php include ('preloader.php'); ?>
-  <?php include ('searchPopup.php'); ?>
-  <?php include ('myCart.php'); ?>
-  <?php include ('nav.php'); ?>
-  <?php include ('billboard.php'); ?>
+  <?php
+    include ('icons.php');
+    include ('preloader.php');
+    include ('searchPopup.php');
+    include ('myCart.php');
+    include ('nav.php');
+    include ('billboard.php'); ?>
   <?php include ('features.php'); ?>
   <?php include ('categories.php'); ?>
   <?php include ('newArrivals.php'); ?>
