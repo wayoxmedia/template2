@@ -5,9 +5,20 @@
         <div class="subscribe-header text-center pb-3">
           <h3 class="section-title text-uppercase">Sign Up for our newsletter</h3>
         </div>
-        <form id="form" class="d-flex flex-wrap gap-2">
-          <input type="text" name="email" placeholder="Your Email Addresss" class="form-control form-control-lg">
-          <button class="btn btn-dark btn-lg text-uppercase w-100">Sign Up</button>
+        <form id="subscribeForm"
+              method="post"
+              class="d-flex flex-wrap gap-2">
+          <label for="iptAddress"></label>
+          <input type="text"
+                 id="iptAddress"
+                 name="iptAddress"
+                 placeholder="Your Email Address"
+                 class="form-control form-control-lg">
+          <input type="hidden"
+                 id="selAddressType"
+                 name="selAddressType"
+                 value="e">
+          <button class="btn btn-dark btn-lg text-uppercase w-100" id="btnSubmitSubscribe">Sign Up</button>
         </form>
       </div>
     </div>
