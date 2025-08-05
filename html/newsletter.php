@@ -20,6 +20,16 @@
                  value="e">
           <button class="btn btn-dark btn-lg text-uppercase w-100" id="btnSubmitSubscribe">Sign Up</button>
         </form>
+        <div class="subscribe-footer pb-3">
+          <div class="row">
+            <div class="col"></div>
+            <div class="col-auto">
+              <p class="mt-4 text-center d-none" id="pErrors"></p>
+              <ul class="mt-3 d-none" id="ulErrors"></ul>
+            </div>
+            <div class="col"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

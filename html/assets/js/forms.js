@@ -1,35 +1,44 @@
 "use strict";
-$(document).on('ready', function() {
-
-  let $iptAddress = $('#iptAddress');
-  let $selAddressType = $('#selAddressType');
-  let $btnSubmitSubscribe = $('#btnSubmitSubscribe');
+$(document).ready(function() {
   let $subscribeForm = $('#subscribeForm');
 
   // Bind Events
   $subscribeForm.on('submit', function(event) {
     event.preventDefault();
+    let $iptAddress = $('#iptAddress');
+    let $selAddressType = $('#selAddressType');
+    let $btnSubmitSubscribe = $('#btnSubmitSubscribe');
+    let $pErrors = $('#pErrors');
+    let arrErrors = [];
+    let $ulErrors = $('#ulErrors');
+
+    // Reset Elements and Errors (if any)
+    $pErrors.html('');
+    $pErrors.addClass('d-none');
+    $pErrors.removeClass('text-danger');
+    $ulErrors.empty();
+    $ulErrors.addClass('d-none');
 
     let isValid = true;
     // Validar el formulario.
     if ($iptAddress.val() === '') {
       isValid = false;
-      console.log('El campo de dirección no puede estar vacío.');
+      arrErrors.push('El campo de dirección no puede estar vacío.');
     }
 
     if ($iptAddress.val().length > 30) {
       isValid = false;
-      console.log('El campo de dirección no puede exceder los 30 caracteres.');
+      arrErrors.push('El campo de dirección no puede exceder los 30 caracteres.');
     }
 
     if ($iptAddress.val().length < 6) {
       isValid = false;
-      console.log('El campo de dirección debe tener al menos 6 caracteres.');
+      arrErrors.push('El campo de dirección debe tener al menos 6 caracteres.');
     }
 
-    if (!validateEmail($iptAddress.val())) {
+    if (!isValidEmailAddress($iptAddress.val())) {
       isValid = false;
-      console.log("Por favor, ingrese un correo electrónico válido.");
+      arrErrors.push('Por favor, ingrese un correo electrónico válido.');
     }
 
     // Enviamos el formulario si la data es valida.
@@ -58,14 +67,32 @@ $(document).on('ready', function() {
 
     }
     else {
-      // Si no es valido, se muestra un mensaje de error
-      console.log('Formulario no es valido, no se enviará');
+      let pluralOrNot;
+      if (arrErrors.length > 1) {
+        pluralOrNot = 'los siguientes errores';
+      }
+      else {
+        pluralOrNot = 'el siguiente error';
+      }
+
+      let pErrorMsg = 'Por favor, corrija ' + pluralOrNot + ' antes de enviar el formulario.';
+      $pErrors.html(pErrorMsg);
+      $pErrors.addClass('text-danger');
+      $pErrors.removeClass('d-none');
+      // Add errors to the list
+      arrErrors.forEach(function(error) {
+        let li = $('<li></li>');
+        li.text(error);
+        li.addClass('text-danger');
+        $ulErrors.append(li);
+      });
+      $ulErrors.removeClass('d-none');
     }
   });
 
   // Create Functions
 
-  function validateEmail(email) {
+  function isValidEmailAddress(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
