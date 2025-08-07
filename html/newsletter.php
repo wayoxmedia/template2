@@ -8,16 +8,20 @@
         <form id="subscribeForm"
               method="post"
               class="d-flex flex-wrap gap-2">
+          <label for="selAddressType"></label>
+          <select id="selAddressType"
+                  name="selAddressType"
+                  class="form-control form-control-lg">
+            <option value="">Seleccione el tipo de suscripción</option>
+            <option value="e">Email</option>
+            <option value="p">Teléfono</option>
+          </select>
           <label for="iptAddress"></label>
           <input type="text"
                  id="iptAddress"
                  name="iptAddress"
-                 placeholder="Your Email Address"
+                 placeholder=""
                  class="form-control form-control-lg">
-          <input type="hidden"
-                 id="selAddressType"
-                 name="selAddressType"
-                 value="e">
           <button class="btn btn-dark btn-lg text-uppercase w-100" id="btnSubmitSubscribe">Sign Up</button>
         </form>
         <div class="subscribe-footer pb-3">
