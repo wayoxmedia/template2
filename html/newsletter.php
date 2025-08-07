@@ -24,7 +24,7 @@
           <div class="row">
             <div class="col"></div>
             <div class="col-auto">
-              <p class="mt-4 text-center d-none" id="pErrors"></p>
+              <p class="mt-4 text-center d-none" id="pMessage"></p>
               <ul class="mt-3 d-none" id="ulErrors"></ul>
             </div>
             <div class="col"></div>

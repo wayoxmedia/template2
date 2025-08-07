@@ -8,19 +8,20 @@ $(document).ready(function() {
     let $iptAddress = $('#iptAddress');
     let $selAddressType = $('#selAddressType');
     let $btnSubmitSubscribe = $('#btnSubmitSubscribe');
-    let $pErrors = $('#pErrors');
+    let $pMessage = $('#pMessage');
     let arrErrors = [];
     let $ulErrors = $('#ulErrors');
 
     // Reset Elements and Errors (if any)
-    $pErrors.html('');
-    $pErrors.addClass('d-none');
-    $pErrors.removeClass('text-danger');
+    $pMessage.html('');
+    $pMessage.addClass('d-none');
+    $pMessage.removeClass('text-danger');
     $ulErrors.empty();
     $ulErrors.addClass('d-none');
 
+    // Start validation
     let isValid = true;
-    // Validar el formulario.
+    // Validate form.
     if ($iptAddress.val() === '') {
       isValid = false;
       arrErrors.push('El campo de dirección no puede estar vacío.');
@@ -41,10 +42,8 @@ $(document).ready(function() {
       arrErrors.push('Por favor, ingrese un correo electrónico válido.');
     }
 
-    // Enviamos el formulario si la data es valida.
     if (isValid) {
       let formData = new FormData(this);
-      // Si es valido, se envía el formulario.
       console.log('Formulario sera enviado porque es valido');
       $.ajax({
         url:  msaConfig.apiUrl + '/subscribe-form',
@@ -56,15 +55,16 @@ $(document).ready(function() {
           'Accept': 'application/json',
         },
         success: function(data) {
-          console.log('Request successful', data);
+          $pMessage.html(data.message || 'Formulario enviado correctamente.');
+          $pMessage.removeClass('d-none');
+          $pMessage.addClass('text-success');
         },
         error: function(xhr) {
-          if (msaConfig.LOCAL_ENV) {
-            console.log('Request failed', xhr);
-          }
+          $pMessage.html(xhr.responseJSON.messages || 'Ocurrió un error al procesar el formulario.');
+          $pMessage.removeClass('d-none');
+          $pMessage.addClass('text-danger');
         }
       });
-
     }
     else {
       let pluralOrNot;
@@ -76,9 +76,9 @@ $(document).ready(function() {
       }
 
       let pErrorMsg = 'Por favor, corrija ' + pluralOrNot + ' antes de enviar el formulario.';
-      $pErrors.html(pErrorMsg);
-      $pErrors.addClass('text-danger');
-      $pErrors.removeClass('d-none');
+      $pMessage.html(pErrorMsg);
+      $pMessage.addClass('text-danger');
+      $pMessage.removeClass('d-none');
       // Add errors to the list
       arrErrors.forEach(function(error) {
         let li = $('<li></li>');
