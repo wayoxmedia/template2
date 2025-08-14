@@ -159,7 +159,7 @@
   let wins = 0;
   let losses = 0;
 
-  const LETTERS = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+  const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   // Functions
   function buildKeyboard() {
@@ -227,7 +227,9 @@
 
   function normalizeWord() {debugger;
     // Remove accents and special characters
+    target = target.replace(/Ñ/g, '__NN__').replace(/ñ/g, '__nn__');
     target = target.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    target = target.replace(/__NN__/g, 'Ñ').replace(/__nn__/g, 'ñ');
   }
 
   function pickWord() {
@@ -266,7 +268,7 @@
     });
 
     // Show ONLY A-Z in "wrong" list
-    let onlyLetters = Array.from(wrong).filter(ch => /^[A-Z]$/.test(ch));
+    let onlyLetters = Array.from(wrong).filter(ch => /^[A-ZÑ]$/.test(ch));
     $wrongLetters.text(onlyLetters.join(' '));
   }
 
