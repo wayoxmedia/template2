@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hangman - Ahorcado</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous">
+  <style>
+    body {
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+    .card {
+      background: #0c1422;
+      border-color: #1f2a3b;
+    }
+    .stage {
+      border: 1px solid #1f2a3b;
+      border-radius: .75rem;
+      padding: 1rem;
+      background: #0b1220;
+      display: grid;
+      place-items: center;
+    }
+    svg { width: 100%; max-width: 320px; height: auto; }
+    .slot {
+      min-width: 28px;
+      display: inline-block;
+      border-bottom: 3px solid #293445;
+      text-align: center;
+      font-weight: 800;
+      font-size: clamp(22px, 4.5vw, 34px);
+      letter-spacing: 2px;
+      padding: 2px 6px;
+      margin: 2px 4px;
+    }
+    .keyboard {
+      display: grid;
+      grid-template-columns: repeat(13, minmax(0, 1fr));
+      gap: .5rem;
+    }
+    @media (max-width: 480px) {
+      .keyboard { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+    }
+    .btn-key {
+      font-weight: 700;
+    }
+    .text-muted-2 {
+      color: #9ca3af !important;
+    }
+  </style>
+</head>
+<body>
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="h4 mb-0"> Hangman - Ahorcado</h1>
+    <div class="d-flex align-items-center gap-2">
+      <span id="lives" class="badge text-bg-secondary">Lives: 6</span>
+      <span id="wins" class="badge text-bg-secondary">Wins: 0</span>
+      <span id="losses" class="badge text-bg-secondary">Losses: 0</span>
+      <button id="btnNewGame" class="btn btn-sm btn-primary">New Game</button>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-4">
+      <div class="stage">
+        <svg id="hangmanSVG" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#e5e7eb" stroke-width="4">
+          <line x1="10" y1="150" x2="110" y2="150"/>
+          <line x1="30" y1="150" x2="30" y2="20"/>
+          <line x1="30" y1="20" x2="80" y2="20"/>
+          <line x1="80" y1="20" x2="80" y2="40"/>
+          <circle id="h-head" class="d-none" cx="80" cy="50" r="10"/>
+          <line id="h-body" class="d-none" x1="80" y1="60" x2="80" y2="100"/>
+          <line id="h-armL" class="d-none" x1="80" y1="70" x2="60" y2="90"/>
+          <line id="h-armR" class="d-none" x1="80" y1="70" x2="100" y2="90"/>
+          <line id="h-legL" class="d-none" x1="80" y1="100" x2="60" y2="130"/>
+          <line id="h-legR" class="d-none" x1="80" y1="100" x2="100" y2="130"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+          <div id="message"
+               class="alert d-none mb-3"
+               role="status"
+               aria-live="polite"></div>
+          <div class="d-flex justify-content-center flex-wrap mb-2"
+               aria-label="Word slots"
+               id="word"></div>
+          <p class="mb-3 text-muted-2 small">
+            Wrong letters: <b id="wrongLetters"></b>
+          </p>
+          <div class="keyboard mb-3"
+               id="keyboard"></div>
+          <div class="d-flex align-items-center justify-content-between">
+            <span id="hint" class="text-muted-2 small">Hint: 0 letters</span>
+            <div class="d-flex gap-2">
+              <button id="btnGiveUp" class="btn btn-outline-danger" type="button">Give Up</button>
+              <button id="btnNewRound" class="btn btn-outline-light" type="button">New Round</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
+
+<script>
+  debugger;
+  // Variables
+  const words = [
+    'javascript',
+    'hangman',
+    'programming',
+    'developer',
+    'function',
+    'variable',
+    'object',
+    'array',
+    'string',
+    'boolean'
+  ];
+  let $head = $('#h-head');
+  let $body = $('#h-body');
+  let $armL = $('#h-armL');
+  let $armR = $('#h-armR');
+  let $legL = $('#h-legL');
+  let $legR = $('#h-legR');
+  let maxLives = 6;
+
+  let $word = $('#word');
+  let $keyboard = $('#keyboard');
+  let $lives = $('#lives');
+  let $wins = $('#wins');
+  let $losses = $('#losses');
+  let $message = $('#message');
+  let $wrongLetters = $('#wrongLetters');
+  let $hint = $('#hint');
+  let $btnNewGame = $('#btnNewGame');
+  let $btnGiveUp = $('#btnGiveUp');
+  let $btnNewRound = $('#btnNewRound');
+
+  let $parts = $(["#h-head", "#h-body", "#h-armL", "#h-armR", "#h-legL", "#h-legR"].join(", "));
+
+
+  // State
+  let target = '';
+  let guessed = new Set;
+  let wrong = new Set;
+  let wins = 0;
+  let losses = 0;
+
+  const LETTERS = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+
+  // Functions
+  function buildKeyboard() {
+    $keyboard.empty();
+    for (let letter of LETTERS) {
+      let $btnLetter = $(`<button class="btn btn-key btn-get-event btn-outline-light">${letter}</button>`);
+      $keyboard.append($btnLetter);
+    }
+  }
+
+  function getWordFromAPI() {
+    debugger;
+    let url = 'https://random-words-api.kushcreates.com/api?language=es&category=countries&words=1';
+
+    $.ajax({
+      url: url,
+      method: 'GET',
+      dataType: 'json',
+      beforeSend: function() {
+        console.log("Fetching word from API...");
+        // Show spinner loading or any other indication
+        $message.removeClass("d-none").text("Fetching word from API... Please wait...");
+      },
+      success: function(data) {
+        if (data && data.length > 0) {
+          target = data[0]['word'].toUpperCase();
+          normalizeWord();
+          console.log("Word fetched from API:", target);
+        } else {
+          console.error('No words found in API response');
+          pickWord(); // Fallback to local words
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error('Error fetching word:', error);
+        pickWord(); // Fallback to local words
+      },
+      complete: function() {
+        // after done
+        console.log("Word fetch complete.");
+        $message.addClass("d-none").text('');
+      }
+    });
+    /*
+    return fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data && data.length > 0) {
+          return data[0].toUpperCase();
+        } else {
+          throw new Error('No words found');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching word:', error);
+        return 'DEFAULT'; // Fallback word
+      });
+      */
+  }
+
+  function normalizeWord() {debugger;
+    // Remove accents and special characters
+    target = target.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function pickWord() {
+    let numeroRandom = Math.random(); // 0 y 09.999999999999999
+    let numeroDecimal = numeroRandom * 10;
+    let numeroEnteroQueLaAppGenero = Math.floor(numeroDecimal);
+    console.log("numeroEnteroQueLaAppGenero:", numeroEnteroQueLaAppGenero);
+    target = words[numeroEnteroQueLaAppGenero].toLocaleUpperCase();
+  }
+
+  function renderWord() {
+    $word.empty();
+    for (let letter of target) {
+      let adivinada = guessed.has(letter);
+      if (adivinada) {
+        adivinada = letter;
+      }
+      else {
+        adivinada = "&nbsp;";
+      }
+      let $slot = $(`<span class="slot">${adivinada}</span>`);
+      $word.append($slot);
+    }
+  }
+
+  function renderKeyboard() {
+    $keyboard.find(".btn-get-event").each(function () {
+      let letter = $(this).text();
+      let isGood = guessed.has(letter);
+      let isBad = wrong.has(letter);
+
+      $(this)
+        .prop("disabled", isGood || isBad)
+        .toggleClass("btn-success", isGood)
+        .toggleClass("btn-danger", isBad);
+    });
+
+    // Show ONLY A-Z in "wrong" list
+    let onlyLetters = Array.from(wrong).filter(ch => /^[A-Z]$/.test(ch));
+    $wrongLetters.text(onlyLetters.join(' '));
+  }
+
+  function updateLives() {
+    let lives = maxLives - wrong.size;
+    $lives.text(`Lives: ${lives}`);
+
+    $parts.addClass("d-none");
+    $parts.each(function (index) {
+      if (index < wrong.size) {
+        $(this).removeClass("d-none");
+      }
+    });
+  }
+
+  function onGuess(rawLetter) {
+    let letter = rawLetter.toUpperCase();
+    if (guessed.has(letter) || wrong.has(letter)) {
+      return;
+    }
+
+    if (target.includes(letter)) {
+      guessed.add(letter);
+    }
+    else {
+      wrong.add(letter);
+    }
+
+    updateBoard();
+    checkEnd();
+  }
+
+  function hasWon() {
+    let unique = new Set(target.split(""));
+    for (let ch of unique) {
+      if (!guessed.has(ch)) return false;
+    }
+    return true;
+  }
+
+  function checkEnd() {
+    if (hasWon()) {
+      wins++;
+      $wins.text(`Wins: ${wins}`);
+      flashMessage("You won!", "success");
+      lockGame();
+    } else if (hasLost()) {
+      losses++;
+      $losses.text(`Losses: ${losses}`);
+      flashMessage("You lost! The word was: " + target, "danger");
+      lockGame();
+    } else {
+      updateLives();
+    }
+  }
+
+
+  function hasLost() {
+    return wrong.size >= maxLives;
+  }
+
+  function lockGame() {
+    $keyboard.find(".btn-get-event").prop("disabled", true);
+  }
+
+  function revealWord() {
+    guessed = new Set(target.split(""));
+    renderWord();
+  }
+
+  function resetParts() {
+    $parts.addClass("d-none");
+  }
+
+  function updateBoard() {
+    renderWord();
+    renderKeyboard();
+    updateLives();
+  }
+
+  function flashMessage(text, type) {
+    $message.removeClass("d-none alert-success alert-danger")
+            .addClass(`alert alert-${type}`)
+            .text(text)
+  }
+
+  function newRound() {
+    $word.empty();
+    $wrongLetters.text('');
+    $message.addClass("d-none").text('');
+    $btnGiveUp.prop("disabled", false);
+    guessed = new Set;
+    wrong = new Set;
+    updateLives();
+    resetParts();
+    buildKeyboard();
+    getWordFromAPI();
+  }
+
+  function newGame() {
+    wins = 0;
+    losses = 0;
+    $wins.text(`Wins: ${wins}`);
+    $losses.text(`Losses: ${losses}`);
+    getWordFromAPI();
+  }
+
+  function giveUp() {
+    $btnGiveUp.prop("disabled", true);
+    for (let i = wrong.size; i < maxLives; i++) {
+      wrong.add(`_${i}`);
+    }
+    updateBoard();
+    checkEnd();
+  }
+
+  // Event Listeners
+  $(document).on('click', '.btn-get-event', function () {
+    let letter = $(this).text();
+    onGuess(letter);
+  });
+
+  $btnNewGame.on('click', newGame);
+  $btnNewRound.on('click', newRound);
+  $btnGiveUp.on('click', giveUp);
+
+  $(document).ready(function () {
+    debugger;
+    buildKeyboard();
+    // pickWord();
+    getWordFromAPI();
+  });
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+</html>
